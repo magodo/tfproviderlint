@@ -37,7 +37,7 @@ func (ignorer *Ignorer) ShouldIgnore(key string, n ast.Node) bool {
 	return false
 }
 
-func run(pass *analysis.Pass) (interface{}, error) {
+func collectIgnores(pass *analysis.Pass) map[string][]ignore {
 	ignores := map[string][]ignore{}
 	for _, f := range pass.Files {
 		cmap := ast.NewCommentMap(pass.Fset, f, f.Comments)
@@ -53,8 +53,11 @@ func run(pass *analysis.Pass) (interface{}, error) {
 			}
 		}
 	}
+	return ignores
+}
 
+func run(pass *analysis.Pass) (interface{}, error) {
 	return &Ignorer{
-		ignores: ignores,
+		ignores: collectIgnores(pass),
 	}, nil
 }
